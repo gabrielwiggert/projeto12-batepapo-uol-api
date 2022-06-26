@@ -9,8 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-const mongoCilent = new MongoClient(process.env.MONGO_URI);
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
 mongoClient.connect().then(() => {
@@ -19,17 +18,28 @@ mongoClient.connect().then(() => {
 
 const userSchema = joi.object({
   name: joi.string().required(),
-	age: joi.number().required(),
-  email: joi.string().email().required()
 });
 
-const user = { name: "Fulano", age: "20", email: "fulano@email.com" }
+app.post("/participants", async (req, res) => {
+  let user = req.body;
+  const validation = userSchema.validate(user);
 
-const validation = userSchema.validate(user);
+  if (validation.error) {
+    console.log(validation.error.details);
+    return;
+  }
 
-if (validation.error) {
-  console.log(validation.error.details)
-}
+  try {
+    await db.collection("users").insertOne(user);
+    res.send("OK");
+	 } catch (error) {
+	  res.status(422).send('Erro no cadastro');
+	 }
+});
+
+app.listen(5000);
+
+/*
 
 app.get('/livros', async (req, res) => {
   try {
@@ -51,21 +61,6 @@ app.get("/usuarios", (req, res) => {
 	db.collection("users").find().toArray().then(users => {
 		console.log(users); // array de usuários
 	});
-});
-
-app.post("/usuarios", (req, res) => {
-	// inserindo usuário
-	db.collection("users").insertOne({
-		email: "joao@email.com",
-		password: "minha_super_senha"
-	});
-});
-
-
-app.post('/sign-up', (req, res) => {
-  let user = req.body;
-  users.push(user);
-  res.send("OK");
 });
 
 app.post('/tweets', (req, res) => {
@@ -91,4 +86,4 @@ app.get("/tweets", (req, res) => {
     res.send(lastTenTweets);
 });
 
-app.listen(5000);
+*/
