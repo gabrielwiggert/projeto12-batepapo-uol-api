@@ -3,6 +3,7 @@ import cors from 'cors';
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import joi from 'joi'
+import dayjs from 'dayjs'
 dotenv.config();
 
 const app = express();
@@ -34,8 +35,17 @@ app.post("/participants", async (req, res) => {
     if (newUser) {
       return res.sendStatus(409);
     }
-    await db.collection("users").insertOne(user);
-    res.send("OK");
+
+    const userRegister = {name: user.name, lastStatus: Date.now()};
+    const hour = dayjs().hour();
+    const minute = dayjs().minute();
+    const second = dayjs().second();
+    const time = `${hour}:${minute}:${second}`;
+    const messageUser = {from: user.name, to: 'Todos', text: 'entra na sala...', type: 'status', time};
+
+    await db.collection("users").insertOne(userRegister);
+    await db.collection("messages").insertOne(messageUser);
+    res.sendStatus(201);
 	 } catch (error) {
 	  res.status(422).send('Erro no cadastro');
 	 }
