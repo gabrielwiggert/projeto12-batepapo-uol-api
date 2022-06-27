@@ -98,7 +98,18 @@ app.get('/messages', async (req, res) => {
   try {
 		const messages = await db.collection("messages").find({}).toArray();
     const filteredMessages = messages.filter(message => (message.type === 'message' || message.type === 'status' || ((message.type === 'private_message') && (message.to === user || message.from === user))));
-		res.send(filteredMessages);
+
+    if (!limit) {
+      return res.send(filteredMessages);
+    } else if (limit) {
+      let lastXMessages = [];
+
+      for (let i = 0; i < limit && filteredMessages.length - i > 0; i++) {
+        lastXMessages.push(filteredMessages[(filteredMessages.length - 1) - i]);
+      }
+      return res.send(lastXMessages);
+    }
+
 	 } catch (error) {
 	  res.status(404);
 	 }
@@ -146,15 +157,3 @@ async function removeInactive() {
 setInterval(removeInactive, 15000);
 
 app.listen(5000);
-
-/*
-
-app.get("/tweets", (req, res) => {
-    let lastTenTweets = [];
-    for (let i = 0; i < 10 && tweets.length - i > 0; i++) {
-        lastTenTweets.push(tweets[(tweets.length - 1) - i]);
-    }
-    res.send(lastTenTweets);
-});
-
-*/
