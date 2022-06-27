@@ -30,6 +30,10 @@ app.post("/participants", async (req, res) => {
   }
 
   try {
+    const newUser = await db.collection('users').findOne(user);
+    if (newUser) {
+      return res.sendStatus(409);
+    }
     await db.collection("users").insertOne(user);
     res.send("OK");
 	 } catch (error) {
