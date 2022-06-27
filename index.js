@@ -118,6 +118,30 @@ app.post("/status", async (req, res) => {
 	 }
 });
 
+async function removeInactive() {
+  const hour = dayjs().hour();
+  const minute = dayjs().minute();
+  const second = dayjs().second();
+  const time = `${hour}:${minute}:${second}`;
+
+  try {
+    const users = await db.collection("users").find({}).toArray();
+
+    const inactiveUsers = users.filter(user => Date.now() - user.lastStatus > 10000);
+    inactiveUsers.forEach(user => {
+      const messageUser = {from: user.name, to: 'Todos', text: 'sai da sala...', type: 'status', time};
+      db.collection("messages").insertOne(messageUser);
+
+      db.collection("users").deleteOne({name: user.name});
+      return;
+    });
+  } catch (error) {
+	  res.status(422);
+	 }
+}
+
+setInterval(removeInactive, 15000);
+
 app.listen(5000);
 
 /*
