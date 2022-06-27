@@ -57,6 +57,41 @@ app.get("/participants", (req, res) => {
 	});
 });
 
+const messageSchema = joi.object({
+  to: joi.string().required(),
+  text: joi.string().required(),
+  type: joi.string().required().valid('message', 'private_message')
+});
+
+app.post("/messages", async (req, res) => {
+  let message = req.body;
+  const user = req.headers.user;
+  const validation = messageSchema.validate(message);
+
+  if (validation.error) {
+    console.log(validation.error.details);
+    return res.sendStatus(422);
+  }
+
+  try {
+    const participant = await db.collection('users').findOne({name: user});
+    if (!participant) {
+      return res.sendStatus(422);
+    }
+
+    const hour = dayjs().hour();
+    const minute = dayjs().minute();
+    const second = dayjs().second();
+    const time = `${hour}:${minute}:${second}`;
+    const messageUser = {from: user, to: message.to, text: message.text, type: message.type, time};
+
+    await db.collection("messages").insertOne(messageUser);
+    res.sendStatus(201);
+	 } catch (error) {
+	  res.status(422);
+	 }
+});
+
 app.listen(5000);
 
 
