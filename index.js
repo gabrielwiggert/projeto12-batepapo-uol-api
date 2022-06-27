@@ -92,40 +92,18 @@ app.post("/messages", async (req, res) => {
 	 }
 });
 
-app.listen(5000);
-
-
-/*
-
-app.get('/livros', async (req, res) => {
+app.get('/messages', async (req, res) => {
   try {
-		await mongoClient.connect();
-		const dbLivros = mongoClient.db("biblioteca")
-		const livrosCollection = dbLivros.collection("livros");
-		const livros = await livrosCollection.find({}).toArray();
-				
-		res.send(livros)
-		mongoClient.close()
+		const messages = await db.collection("messages").find({}).toArray();
+		res.send(messages);
 	 } catch (error) {
-	  res.status(500).send('A culpa foi do estagiário')
-		mongoClient.close()
+	  res.status(404);
 	 }
 });
 
-app.post('/tweets', (req, res) => {
-    let response = req.body;
-    let username = response.username;
-    let tweet = response.tweet;
-    let correspondingUser = users.find(user => user.username === response.username);
-    let avatar = correspondingUser.avatar;
-    let fullTweet = {
-        username,
-		avatar,
-	    tweet
-    }
-    tweets.push(fullTweet);
-    res.send("OK");
-  });
+app.listen(5000);
+
+/*
 
 app.get("/tweets", (req, res) => {
     let lastTenTweets = [];
