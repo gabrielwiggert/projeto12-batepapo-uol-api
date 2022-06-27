@@ -51,7 +51,14 @@ app.post("/participants", async (req, res) => {
 	 }
 });
 
+app.get("/participants", (req, res) => {
+	db.collection("users").find().toArray().then(users => {
+		res.send(users);
+	});
+});
+
 app.listen(5000);
+
 
 /*
 
@@ -68,13 +75,6 @@ app.get('/livros', async (req, res) => {
 	  res.status(500).send('A culpa foi do estagiário')
 		mongoClient.close()
 	 }
-});
-
-app.get("/usuarios", (req, res) => {
-	// buscando usuários
-	db.collection("users").find().toArray().then(users => {
-		console.log(users); // array de usuários
-	});
 });
 
 app.post('/tweets', (req, res) => {
