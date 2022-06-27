@@ -101,6 +101,23 @@ app.get('/messages', async (req, res) => {
 	 }
 });
 
+app.post("/status", async (req, res) => {
+  const user = req.headers.user;
+
+  try {
+    const isThereUser = await db.collection('users').findOne({name: user});
+    if (!isThereUser) {
+      return res.sendStatus(404);
+    }
+
+		await db.collection("users").updateOne({name: user}, { $set:{lastStatus: Date.now()}})
+
+    res.sendStatus(200);
+	 } catch (error) {
+	  res.status(422);
+	 }
+});
+
 app.listen(5000);
 
 /*
