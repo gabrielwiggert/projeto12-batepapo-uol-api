@@ -93,9 +93,12 @@ app.post("/messages", async (req, res) => {
 });
 
 app.get('/messages', async (req, res) => {
+  const limit = parseInt(req.query.limit);
+  const user = req.headers.user;
   try {
 		const messages = await db.collection("messages").find({}).toArray();
-		res.send(messages);
+    const filteredMessages = messages.filter(message => (message.type === 'message' || message.type === 'status' || ((message.type === 'private_message') && (message.to === user || message.from === user))));
+		res.send(filteredMessages);
 	 } catch (error) {
 	  res.status(404);
 	 }
